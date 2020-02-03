@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstring>
+#include <random>
 #include "common.h"
 
 
@@ -29,7 +30,8 @@ void save(std::ofstream &fsave, particle_t *parts, int num_parts, double size) {
 
 // Particle Initialization
 void init_particles(particle_t *parts, int num_parts, double size, int part_seed) {
-    srand48(part_seed);
+    std::random_device rd;
+    std::mt19937 gen(part_seed ? part_seed : rd());
 
     int sx = (int) ceil(sqrt((double) num_parts));
     int sy = (num_parts + sx - 1) / sx;
@@ -42,7 +44,8 @@ void init_particles(particle_t *parts, int num_parts, double size, int part_seed
 
     for (int i = 0; i < num_parts; ++i) {
         // Make sure particles are not spatially sorted
-        int j = lrand48() % (num_parts - i);
+        std::uniform_int_distribution<int> rand_int(0, num_parts - i - 1);
+        int j = rand_int(gen);
         int k = shuffle[j];
         shuffle[j] = shuffle[num_parts - i - 1];
 
@@ -51,8 +54,9 @@ void init_particles(particle_t *parts, int num_parts, double size, int part_seed
         parts[i].y = size * (1. + (k / sx)) / (1 + sy);
 
         // Assign random velocities within a bound
-        parts[i].vx = drand48() * 2 - 1;
-        parts[i].vy = drand48() * 2 - 1;
+        std::uniform_real_distribution<float> rand_real(-1.0, 1.0);
+        parts[i].vx = rand_real(gen);
+        parts[i].vy = rand_real(gen);
     }
 
     free(shuffle);
