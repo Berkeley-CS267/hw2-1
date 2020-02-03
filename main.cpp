@@ -6,11 +6,8 @@
 #include <sys/time.h>
 #include "common.h"
 
-#ifdef SERIAL_VERSION
-	#include "serial.h"
-#elif OPENMP_VERSION
-	#include "omp.h"
-	#include "openmp.h"
+#ifdef _OPENMP 
+#include "omp.h"
 #endif
 
 // =================
@@ -154,7 +151,7 @@ int main ( int argc, char** argv )
 	// Algorithm
 	double start_time = read_timer();
 
-	#ifdef OPENMP_VERSION
+	#ifdef _OPENMP
 		#pragma omp parallel default(shared)
 		{
 	#endif
@@ -164,7 +161,7 @@ int main ( int argc, char** argv )
 		simulate_one_step ( parts, num_parts, size );
 
 		// Save state if necessary
-		#ifdef OPENMP_VERSION
+		#ifdef _OPENMP
 			#pragma omp master
 		#endif
 		if ( fsave.good() && (step % savefreq) == 0 )
@@ -173,7 +170,7 @@ int main ( int argc, char** argv )
 		}
 	}
 
-	#ifdef OPENMP_VERSION
+	#ifdef _OPENMP
 		}
 	#endif
 
