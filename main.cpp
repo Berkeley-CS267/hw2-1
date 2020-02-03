@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <ctime>
-#include <sys/time.h>
 #include "common.h"
 
 #ifdef _OPENMP 
@@ -13,23 +13,6 @@
 // =================
 // Helper Functions
 // =================
-
-// Timing Routine
-double read_timer ( void )
-{
-	static bool initialized = false;
-	static struct timeval start;
-	struct timeval end;
-	if ( !initialized )
-	{
-		gettimeofday( &start, NULL );
-		initialized = true;
-	}
-	gettimeofday( &end, NULL );
-
-	return (end.tv_sec - start.tv_sec) + 1.0e-6 * (end.tv_usec - start.tv_usec);
-}
-
 
 // I/O routines
 void save ( std::ofstream& fsave, particle_t* parts, int num_parts, double size )
@@ -149,7 +132,7 @@ int main ( int argc, char** argv )
 	init_particles( parts, num_parts, size, part_seed );
 
 	// Algorithm
-	double start_time = read_timer();
+    auto start_time = std::chrono::steady_clock::now();
 
 	#ifdef _OPENMP
 		#pragma omp parallel default(shared)
@@ -174,12 +157,14 @@ int main ( int argc, char** argv )
 		}
 	#endif
 
-	double end_time = read_timer();
-
+    auto end_time = std::chrono::steady_clock::now();
+    
+    std::chrono::duration<double> diff = end_time - start_time;
+    double seconds = diff.count();
 
 	// Finalize
 	std::cout << "Simulation Time = "
-	          << end_time - start_time
+	          << seconds
 	          << " seconds for "
 	          << num_parts
 	          << " particles."
