@@ -11,18 +11,17 @@
 #define dt       0.0005
 
 // Particle Data Structure
-typedef struct particle_t
-{
-	double x;  // Position X
-	double y;  // Position Y
-	double vx; // Velocity X
-	double vy; // Velocity Y
-	double ax; // Acceleration X
-	double ay; // Acceleration Y
+typedef struct particle_t {
+    double x;  // Position X
+    double y;  // Position Y
+    double vx; // Velocity X
+    double vy; // Velocity Y
+    double ax; // Acceleration X
+    double ay; // Acceleration Y
 
 } particle_t;
 
 // Simulation routine
-void simulate_one_step(particle_t* parts, int num_parts, double size);
+void simulate_one_step(particle_t *parts, int num_parts, double size);
 
 #endif
