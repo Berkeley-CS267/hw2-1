@@ -7,7 +7,7 @@
 #define density  0.0005
 #define mass     0.01
 #define cutoff   0.01
-#define min_r    (cutoff/100)
+#define min_r    (cutoff / 100)
 #define dt       0.0005
 
 // Particle Data Structure
@@ -21,6 +21,6 @@ typedef struct particle_t {
 } particle_t;
 
 // Simulation routine
-void simulate_one_step(particle_t *parts, int num_parts, double size);
+void simulate_one_step(particle_t* parts, int num_parts, double size);
 
 #endif
