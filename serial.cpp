@@ -1,3 +1,4 @@
+#include <cmath>
 #include "common.h"
 
 // Apply the force from neighbor to particle
