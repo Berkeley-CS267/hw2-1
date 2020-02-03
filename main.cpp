@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstring>
 #include <random>
+#include <vector>
 #include "common.h"
 
 
@@ -36,9 +37,8 @@ void init_particles(particle_t *parts, int num_parts, double size, int part_seed
     int sx = (int) ceil(sqrt((double) num_parts));
     int sy = (num_parts + sx - 1) / sx;
 
-    int *shuffle = (int *) malloc(num_parts * sizeof(int));
-
-    for (int i = 0; i < num_parts; ++i) {
+    std::vector<int> shuffle(num_parts);
+    for (int i = 0; i < shuffle.size(); ++i) {
         shuffle[i] = i;
     }
 
@@ -58,8 +58,6 @@ void init_particles(particle_t *parts, int num_parts, double size, int part_seed
         parts[i].vx = rand_real(gen);
         parts[i].vy = rand_real(gen);
     }
-
-    free(shuffle);
 }
 
 
@@ -129,9 +127,8 @@ int main(int argc, char **argv) {
 
 #ifdef _OPENMP
 #pragma omp parallel default(shared)
-    {
 #endif
-
+    {
         for (int step = 0; step < nsteps; ++step) {
             simulate_one_step(parts, num_parts, size);
 
@@ -143,10 +140,7 @@ int main(int argc, char **argv) {
                 save(fsave, parts, num_parts, size);
             }
         }
-
-#ifdef _OPENMP
     }
-#endif
 
     auto end_time = std::chrono::steady_clock::now();
 
