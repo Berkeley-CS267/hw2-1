@@ -12,7 +12,7 @@ set(GROUP_NO 00 CACHE STRING "Your group number (two digits)")
 # Packaging system
 if (NOT ${GROUP_NO} STREQUAL 00)
     set(CPACK_GENERATOR TGZ)
-    set(CPACK_PACKAGE_FILE_NAME "cs267Group${GROUP_NO}_hw1")
+    set(CPACK_PACKAGE_FILE_NAME "cs267Group${GROUP_NO}_hw2_1")
     install(FILES serial.cpp openmp.cpp DESTINATION .)
     install(FILES ${CPACK_PACKAGE_FILE_NAME}.pdf DESTINATION .)
     include(CPack)
