@@ -116,19 +116,17 @@ int main(int argc, char** argv) {
 
     init_particles(parts, num_parts, size, part_seed);
 
-    void* data = nullptr;
-
     // Algorithm
     auto start_time = std::chrono::steady_clock::now();
 
-    init_simulation(parts, num_parts, size, &data);
+    init_simulation(parts, num_parts, size);
 
 #ifdef _OPENMP
 #pragma omp parallel default(shared)
 #endif
     {
         for (int step = 0; step < nsteps; ++step) {
-            simulate_one_step(parts, num_parts, size, data);
+            simulate_one_step(parts, num_parts, size);
 
             // Save state if necessary
 #ifdef _OPENMP

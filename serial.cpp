@@ -43,15 +43,13 @@ void move(particle_t& p, double size) {
 }
 
 
-void init_simulation(particle_t* parts, int num_parts, double size, void **my_data) {
-	// You can use this space to initialize data objects that you may need
-	// This function will be called once before the algorithm begins
-	// Do not do any particle simulation here
-	// The my_data object will persist between calls to simulate_one_step
-	// So you can create objects and store them there for later use
+void init_simulation(particle_t* parts, int num_parts, double size) {
+	// You can use this space to initialize static, global data objects
+    // that you may need. This function will be called once before the
+    // algorithm begins. Do not do any particle simulation here
 }
 
-void simulate_one_step(particle_t* parts, int num_parts, double size, void *my_data) {
+void simulate_one_step(particle_t* parts, int num_parts, double size) {
     // Compute Forces
     for (int i = 0; i < num_parts; ++i) {
         parts[i].ax = parts[i].ay = 0;
