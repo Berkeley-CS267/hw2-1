@@ -6,4 +6,4 @@
 #SBATCH -t 00:30:00
 
 #run the application:
-srun -n 1 -c 1 ./serial
+srun -n 1 ./serial
