@@ -7,6 +7,7 @@
 
 #OpenMP settings:
 export OMP_NUM_THREADS=64
+export OMP_PLACES=cores
 
 #run the application:
 srun -n 1 ./openmp
