@@ -11,4 +11,4 @@ export OMP_PLACES=cores
 export OMP_PROC_BIND=spread
 
 #run the application:
-srun -n 1 -c 64 --cpu_bind=cores ./openmp
+srun -n 1 -c 64 ./openmp
