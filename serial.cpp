@@ -1,5 +1,14 @@
 #include "common.h"
 #include <cmath>
+#include <set>
+#include <unordered_map>
+#include <iostream>
+
+#define EPS  0.001
+
+std::unordered_map<int, std::set<int>> bins;
+double bin_size = 3*cutoff;
+int lda;
 
 // Apply the force from neighbor to particle
 void apply_force(particle_t& particle, particle_t& neighbor) {
@@ -42,24 +51,89 @@ void move(particle_t& p, double size) {
     }
 }
 
+int calculate_bin_number(double x, double y, double size, double bin_size, int lda){
+    double quotient;
+    quotient = x/bin_size;
+    int column_index =(int) quotient;
+
+    quotient = y/bin_size;
+    int row_index=(int)quotient;
+    //   std::cout << column_index + lda* row_index << "\n";
+    return column_index + lda* row_index;
+
+}
+
 
 void init_simulation(particle_t* parts, int num_parts, double size) {
-	// You can use this space to initialize static, global data objects
+    double quotient= size/bin_size;
+    lda = (int) ceil(quotient);
+    int index;
+    for (int i = 0; i < num_parts; ++i){
+        index = calculate_bin_number(parts[i].x,parts[i].y, size, bin_size,lda);
+        bins[index].insert(i);
+    }
+    // You can use this space to initialize static, global data objects
     // that you may need. This function will be called once before the
     // algorithm begins. Do not do any particle simulation here
 }
 
+bool check_boundary(int row , int column){
+    if ((row < 0) or (row>=lda)){
+        return false;
+    }
+    if ((column < 0) or (column >=lda)){
+        return false;
+    }
+    return true;
+}
+void apply_force_bin(int row, int column, int p, particle_t* parts, int lda){
+    if (not check_boundary(row, column)){
+        return;
+    }
+    for (auto it = bins[column+row*lda].begin(); it != bins[column+row*lda].end(); ++it){
+        apply_force(parts[p], parts[*it]);
+    }
+
+}
+
 void simulate_one_step(particle_t* parts, int num_parts, double size) {
     // Compute Forces
-    for (int i = 0; i < num_parts; ++i) {
-        parts[i].ax = parts[i].ay = 0;
-        for (int j = 0; j < num_parts; ++j) {
-            apply_force(parts[i], parts[j]);
+    // for (int i = 0; i < num_parts; ++i) {
+    //     parts[i].ax = parts[i].ay = 0;
+    //     for (int j = 0; j < num_parts; ++j) {
+    //         apply_force(parts[i], parts[j]);
+    //     }
+    // }
+
+    for(int i = 0; i < lda; ++i){
+        for (int j = 0; j < lda; ++j){
+            for (auto it = bins[i+j*lda].begin(); it != bins[i+j*lda].end(); ++it){
+                parts[*it].ax = parts[*it].ay = 0;
+                apply_force_bin(j-1,i-1, *it, parts, lda);
+                apply_force_bin(j-1,i, *it, parts, lda);
+                apply_force_bin(j-1,i+1, *it, parts, lda);
+                apply_force_bin(j,i-1, *it, parts, lda);
+                apply_force_bin(j,i, *it, parts, lda);
+                apply_force_bin(j,i+1, *it, parts, lda);
+                apply_force_bin(j+1,i-1, *it, parts, lda);
+                apply_force_bin(j+1,i, *it, parts, lda);
+                apply_force_bin(j+1,i+1, *it, parts, lda);
+            }
         }
     }
+
 
     // Move Particles
     for (int i = 0; i < num_parts; ++i) {
         move(parts[i], size);
+    }
+
+    for( int i=0; i< lda*lda;i++){
+        bins[i].clear();
+    }
+    int index;
+    for (int i = 0; i < num_parts; ++i){
+        index = calculate_bin_number(parts[i].x,parts[i].y, size, bin_size, lda);
+        bins[index].insert(i);
     }
 }
