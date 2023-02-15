@@ -232,7 +232,18 @@ void simulate_one_step(particle_t* parts, int num_parts, double size) {
 #pragma omp for collapse(2)
     for(int i = 0; i < lda; ++i){
         for (int j = 0; j < lda; ++j){
-            apply_force_bins(i, j, lda);
+            // apply_force_bins(i, j, lda);
+            int row = i;
+            int column = j;
+            apply_force_bin_self(row, column, row, column, lda);
+            // right neighbor
+            apply_force_bin(row, column, row, column + 1, lda);
+            // bottom left neighbor
+            apply_force_bin(row, column, row + 1, column - 1, lda);
+            // bottom neighbor
+            apply_force_bin(row, column, row + 1, column, lda);
+            // bottom right neighbor
+            apply_force_bin(row, column, row + 1, column + 1, lda);
         }
     }
 // Move Particles
