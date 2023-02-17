@@ -4,12 +4,17 @@
 #include <unordered_map>
 #include <iostream>
 #include <bits/stdc++.h>
+#include <vector>
+#include <omp.h>
+
 
 std::unordered_map<int, std::unordered_set<particle_t *>> bins;
+std::vector <omp_lock_t> bin_locks;
 std::unordered_map<int, int> particle_to_bin;
 // std::unordered_map<int, std::tuple<double, double>> force_vectors;
 double bin_size = 3*cutoff;
 int lda;
+std::unordered_map<particle_t *, int> particle_id_map;
 
 // Apply the force from neighbor to particle
 void apply_force(particle_t& particle, particle_t& neighbor) {
@@ -99,13 +104,16 @@ void move(int particle_ind, particle_t& p, double size) {
     if(origin_bin == new_bin){
         return;
     }
-
-#pragma omp critical
     particle_to_bin[particle_ind] = new_bin;
-#pragma omp critical
+    // #pragma omp critical
+    // {
+    omp_set_lock(&bin_locks[origin_bin]);
     bins[origin_bin].erase(&p);
-#pragma omp critical
-    bins[new_bin].insert(&p);
+    omp_unset_lock(&bin_locks[origin_bin]);
+    omp_set_lock(&bin_locks[new_bin]);
+    bins[new_bin].emplace(&p);
+    omp_unset_lock(&bin_locks[new_bin]);
+    // }
 }
 
 
@@ -123,7 +131,9 @@ void init_simulation(particle_t* parts, int num_parts, double size) {
         index = calculate_bin_number(parts[i].x,parts[i].y, size, bin_size,lda);
         bins[index].insert(&parts[i]);
         particle_to_bin[i] = index;
+        particle_id_map[&parts[i]] = i;
     }
+    bin_locks = std::vector<omp_lock_t> (lda * lda);
     // You can use this space to initialize static, global data objects
     // that you may need. This function will be called once before the
     // algorithm begins. Do not do any particle simulation here
@@ -247,7 +257,7 @@ void simulate_one_step(particle_t* parts, int num_parts, double size) {
         }
     }
 // Move Particles
-#pragma omp for
+#pragma omp for schedule(dynamic, 100)
     for (int i = 0; i < num_parts; ++i) {
         move(i, parts[i], size);
     }
